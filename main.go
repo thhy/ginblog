@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"ginblog/conf"
-	"ginblog/router"
 	"os"
+
+	"github.com/ginblog/conf"
+	"github.com/ginblog/router"
 
 	"github.com/gin-gonic/gin"
 )

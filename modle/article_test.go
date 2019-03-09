@@ -1,8 +1,9 @@
 package modle_test
 
 import (
-	"ginblog/handler"
 	"testing"
+
+	"github.com/ginblog/handler"
 )
 
 func Test_Create(t *testing.T) {

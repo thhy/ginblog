@@ -2,15 +2,17 @@ package handler
 
 import (
 	"fmt"
-	"ginblog/conf"
 	"net/http"
 	"os"
+
+	"github.com/ginblog/conf"
 
 	"github.com/gin-gonic/gin"
 )
 
 var router *gin.Engine
 
+//InitializeRoutes init route
 func InitializeRoutes() {
 	//change path to work dir
 	os.Chdir(conf.SRCPATH)
