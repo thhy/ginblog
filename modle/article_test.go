@@ -3,7 +3,7 @@ package modle_test
 import (
 	"testing"
 
-	"github.com/ginblog/handler"
+	"github.com/thhy/ginblog/handler"
 )
 
 func Test_Create(t *testing.T) {

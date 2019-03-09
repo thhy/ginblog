@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/ginblog/conf"
+	"github.com/thhy/ginblog/conf"
 
 	"github.com/gin-gonic/gin"
 )

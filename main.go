@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ginblog/conf"
-	"github.com/ginblog/router"
+	"github.com/thhy/ginblog/conf"
+	"github.com/thhy/ginblog/router"
 
 	"github.com/gin-gonic/gin"
 )
