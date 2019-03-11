@@ -72,3 +72,10 @@ func Find(keywords string) []Article {
 	articleDB.Where("content like ? or title like ?", queryWords, queryWords).Find(&articles)
 	return articles
 }
+
+//GetAllArticles get all articles
+func GetAllArticles() []Article {
+	var articles []Article
+	articleDB.Find(&articles)
+	return articles
+}
