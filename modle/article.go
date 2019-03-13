@@ -45,7 +45,7 @@ func Create(title string, content string) bool {
 		articleDB.CreateTable(&Article{})
 	}
 	article := &Article{Title: title, Content: content}
-	if !articleDB.NewRecord(*article) {
+	if articleDB.NewRecord(*article) {
 		log.Println("create")
 		articleDB.Create(article)
 	}
@@ -53,7 +53,7 @@ func Create(title string, content string) bool {
 }
 
 //Get article according id
-func Get(id uint) Article {
+func Get(id string) Article {
 	if !articleDB.HasTable(&Article{}) {
 		return Article{}
 	}

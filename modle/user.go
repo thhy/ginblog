@@ -51,12 +51,14 @@ func encodePassword(password string) string {
 
 //Regist regist user
 func Regist(username string, password string) (User, error) {
-	mdpassword := encodePassword(password)
 	var user User
 	// user := User{Name:username, Password:mdpassword}
-	if userDB.Where("name = ? and password = ?", username, mdpassword).First(&user).RecordNotFound() {
-		if !userDB.NewRecord(&user) {
-			userDB.Create(user)
+	if userDB.Where("name = ?", username).First(&user).RecordNotFound() {
+		user.Name = username
+		mdpassword := encodePassword(password)
+		user.Password = mdpassword
+		if userDB.NewRecord(user) {
+			userDB.Create(&user)
 		}
 		return user, nil
 	}

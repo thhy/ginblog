@@ -2,24 +2,31 @@ package router
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thhy/ginblog/handler"
 )
 
-// var router *gin.Engine
-
+//InitializeRoutes 初始化路由
 func InitializeRoutes(router *gin.Engine) {
 
 	fmt.Println(os.Getwd())
 	router.LoadHTMLGlob("templates/*")
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title": "Home Page",
-		})
-		// c.JSON(http.StatusOK, gin.H{
-		// 	"Hello": "World",
-		// })
-	})
+	router.GET("/", handler.Index)
+
+	u := router.Group("/u")
+	{
+		u.GET("login", handler.Login)
+		u.POST("login", handler.Login)
+		u.GET("register", handler.Regist)
+		u.POST("register", handler.Regist)
+	}
+
+	a := router.Group("/article")
+	{
+		a.GET("view/:id", handler.GetArticleByID)
+		a.GET("new", handler.NewArticle)
+		a.POST("new", handler.NewArticle)
+	}
 }

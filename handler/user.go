@@ -1,27 +1,36 @@
 package handler
 
 import (
+	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/thhy/ginblog/modle"
 )
 
+//Login 用户登录
 func Login(c *gin.Context) {
-	username := c.PostForm["username"]
-	password := c.PostForm["password"]
+	if c.Request.Method == "POST" {
+		username := c.PostForm("username")
+		password := c.PostForm("password")
 
-	user := modle.AuthUser(userame, password)
-	if user.ID == 0 {
+		user := modle.AuthUser(username, password)
+		if user.ID == 0 {
+			c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+				"ErrorTitle":   "Login Failed",
+				"ErrorMessage": "Invalid credentials provided"})
+		} else {
+
+			c.SetCookie("is_login_id", "true", 3600*24, "", "", false, true)
+			c.SetCookie("token", generateSessionToken(), 3600, "", "", false, true)
+			c.HTML(http.StatusOK, "login-successful.html", gin.H{
+				"title": "loginSuccess",
+			})
+		}
+	} else if c.Request.Method == "GET" {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"ErrorTitle":   "Login Failed",
-			"ErrorMessage": "Invalid credentials provided"})
-	} else {
-
-		c.SetCookie("is_login_id", "true")
-		c.SetCookie("token", generateSessionToken(), 3600, "", "", false, true)
-		c.HTML(http.StatusOK, "login-successful.html", gin.H{
-			"title":"loginSuccess"
+			"title": "Login",
 		})
 	}
 }
@@ -33,4 +42,31 @@ func generateSessionToken() string {
 	return strconv.FormatInt(rand.Int63(), 16)
 }
 
-func Re
+//Regist regist user
+func Regist(c *gin.Context) {
+	if c.Request.Method == "POST" {
+		username := c.PostForm("username")
+		password := c.PostForm("password")
+
+		_, err := modle.Regist(username, password)
+
+		if err != nil {
+			c.HTML(http.StatusOK, "register.html", gin.H{
+				"title":      "注册",
+				"ErrorTitle": err,
+			})
+			return
+		}
+
+		c.SetCookie("is_login_id", "true", 3600*24, "", "", false, true)
+		c.SetCookie("token", generateSessionToken(), 3600, "", "", false, true)
+		c.HTML(http.StatusOK, "login-successful.html", gin.H{
+			"title": "loginSuccess",
+		})
+	} else if c.Request.Method == "GET" {
+		c.HTML(http.StatusOK, "register.html", gin.H{
+			"title": "注册",
+		})
+	}
+
+}
