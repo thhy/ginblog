@@ -1,3 +1,4 @@
 # go.mod
 *.db
 # go.sum
+*.log

@@ -26,7 +26,7 @@ func InitializeRoutes(router *gin.Engine) {
 	a := router.Group("/article")
 	{
 		a.GET("view/:id", handler.GetArticleByID)
-		a.GET("new", handler.NewArticle)
-		a.POST("new", handler.NewArticle)
+		a.GET("create", handler.NewArticle)
+		a.POST("create", handler.NewArticle)
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thhy/ginblog/modle"
+	"github.com/thhy/ginblog/model"
 )
 
 //Login 用户登录
@@ -14,9 +14,9 @@ func Login(c *gin.Context) {
 	if c.Request.Method == "POST" {
 		username := c.PostForm("username")
 		password := c.PostForm("password")
-
-		user := modle.AuthUser(username, password)
-		if user.ID == 0 {
+		user := &model.User{Name: username, Password: password}
+		success := user.Auth()
+		if !success {
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{
 				"ErrorTitle":   "Login Failed",
 				"ErrorMessage": "Invalid credentials provided"})
@@ -29,7 +29,7 @@ func Login(c *gin.Context) {
 			})
 		}
 	} else if c.Request.Method == "GET" {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+		c.HTML(http.StatusOK, "login.html", gin.H{
 			"title": "Login",
 		})
 	}
@@ -48,7 +48,8 @@ func Regist(c *gin.Context) {
 		username := c.PostForm("username")
 		password := c.PostForm("password")
 
-		_, err := modle.Regist(username, password)
+		user := &model.User{Name: username, Password: password}
+		err := user.Regist()
 
 		if err != nil {
 			c.HTML(http.StatusOK, "register.html", gin.H{

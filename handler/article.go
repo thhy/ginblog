@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thhy/ginblog/modle"
+	"github.com/thhy/ginblog/model"
 )
 
 //PostArticle 提交文章
@@ -15,27 +15,42 @@ func PostArticle(c *gin.Context) {
 }
 
 //GetAllArticles 获取所有文章
-func GetAllArticles() []modle.Article {
-	articles := modle.GetAllArticles()
+func GetAllArticles() []model.Article {
+	article := &model.Article{}
+
+	articles := article.GetAllArticles(0, 30)
+	log.Printf("%+v", articles)
 	return articles
 }
 
 //GetArticleByID 通过id获取文章
 func GetArticleByID(c *gin.Context) {
-	id := c.Param("id")
-	article := modle.Get(id)
-	log.Println("article.ID:? requesID:?", article.ID, id)
-	intID, err := strconv.Atoi(id)
+	article := &model.Article{}
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.HTML(http.StatusNotFound, "article.html", gin.H{
+			"errorMessage": "not found page",
+		})
+		return
+	}
+	res, err := article.Get(uint(id))
+	if err != nil {
+		c.HTML(http.StatusNotFound, "article.html", gin.H{
+			"errorMessage": "not found page",
+		})
+		return
+	}
+	log.Println("article.ID:? requesID:?", res.ID, id)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "article.html", gin.H{
 			"title": "invaild request id",
 		})
 		return
 	}
-	if article.ID == uint(intID) {
+	if res.ID == uint(id) {
 		c.HTML(http.StatusOK, "article.html", gin.H{
-			"payload": article,
-			"title":   article.Title,
+			"payload": res,
+			"title":   res.Title,
 		})
 
 	} else {
@@ -54,8 +69,8 @@ func NewArticle(c *gin.Context) {
 	} else if c.Request.Method == "POST" {
 		title := c.PostForm("title")
 		content := c.PostForm("content")
-
-		modle.Create(title, content)
+		article := &model.Article{Title: title, Content: content}
+		article.Create()
 		c.HTML(http.StatusOK, "submission-successful.html", gin.H{
 			"title": "submit success",
 		})
