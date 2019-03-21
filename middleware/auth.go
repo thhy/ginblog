@@ -1,30 +1,54 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/dgrijalva/jwt-go/request"
+	"github.com/thhy/ginblog/db"
+
 	"github.com/gin-gonic/gin"
-	"github.com/thhy/ginblog/conf"
 )
 
-func AuthUser(c *gin.Context) {
-
-}
-
-//EnforceLogin ensure user login
-func EnforceLogin() gin.HandlerFunc {
+//AuthMiddleWare ensure user login
+func AuthMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, err := request.ParseFromRequest(c.Request, request.AuthorizationHeaderExtractor, func(token *jwt.Token) (interface{}, error) {
-			return []byte(conf.SECRETKEY), nil
-		})
-
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "err token",
+		sessionID, err := c.Cookie("session_id")
+		if err != nil {
+			log.Println(err)
+			c.JSON(http.StatusForbidden, gin.H{
+				"message": "please login",
 			})
 			c.Abort()
+		} else {
+			res, err := db.RedisConn.Do("KEYS", sessionID)
+			log.Printf("%+v\n", res)
+			if err != nil {
+				log.Panicln(err)
+				c.JSON(http.StatusForbidden, gin.H{
+					"message": "please login",
+				})
+				c.Abort()
+			} else {
+				c.Next()
+			}
 		}
+
+	}
+}
+
+//UnAuthMiddleWare ensure user not login
+func UnAuthMiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sessionID, err := c.Cookie("session_id")
+		log.Printf("sessionID:%s\n", sessionID)
+		if err == nil {
+			_, err := db.RedisConn.Do("KEYS", sessionID)
+			if err == nil {
+				c.Redirect(http.StatusFound, "http://localhost:8081")
+				c.Abort()
+			}
+		}
+		// c.Next()
+
 	}
 }

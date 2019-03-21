@@ -69,10 +69,8 @@ func (user *User) Regist() error {
 //Auth check valid user
 func (user *User) Auth() bool {
 	mdpassword := encodePassword(user.Password)
-	has, err := db.DB.Exist(&User{
-		Name:     user.Name,
-		Password: mdpassword,
-	})
+	user.Password = mdpassword
+	has, err := db.DB.Exist(user)
 	if err != nil {
 		log.Fatal("query user error", err)
 	}
@@ -87,3 +85,9 @@ func encodePassword(password string) string {
 	b := []byte(t)
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
+
+//
+/*func (user *User) modifyPassword(NewPassword string) error {
+	mdPassword := encodePassword(NewPassword)
+
+}*/

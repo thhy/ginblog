@@ -53,7 +53,7 @@ func (article *Article) Create() error {
 //Get article according article id
 func (article *Article) Get(id uint) (*Article, error) {
 	var articles []Article
-	err := db.DB.Id(id).Find(&articles)
+	err := db.DB.Where("id = ?", id).Find(&articles)
 	if len(articles) == 0 {
 		return nil, errors.New("not found page")
 	}
@@ -62,7 +62,7 @@ func (article *Article) Get(id uint) (*Article, error) {
 
 //Modify article
 func (article *Article) Modify(id uint) error {
-	_, err := db.DB.Id(id).Cols("title", "content").Update(&article)
+	_, err := db.DB.Where("id = ?", id).Cols("title", "content").Update(&article)
 	return err
 }
 

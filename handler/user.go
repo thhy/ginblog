@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"encoding/json"
 	"math/rand"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thhy/ginblog/db"
 	"github.com/thhy/ginblog/model"
 )
 
@@ -21,9 +23,13 @@ func Login(c *gin.Context) {
 				"ErrorTitle":   "Login Failed",
 				"ErrorMessage": "Invalid credentials provided"})
 		} else {
-
-			c.SetCookie("is_login_id", "true", 3600*24, "", "", false, true)
-			c.SetCookie("token", generateSessionToken(), 3600, "", "", false, true)
+			sessionID := generateSessionToken()
+			jsonUser, err := json.Marshal(*user)
+			if err != nil {
+			}
+			storeSessionID(sessionID, string(jsonUser), 86400)
+			//set cookie ttl
+			c.SetCookie("session_id", sessionID, 3600*24, "", "", false, true)
 			c.HTML(http.StatusOK, "login-successful.html", gin.H{
 				"title": "loginSuccess",
 			})
@@ -58,9 +64,12 @@ func Regist(c *gin.Context) {
 			})
 			return
 		}
-
-		c.SetCookie("is_login_id", "true", 3600*24, "", "", false, true)
-		c.SetCookie("token", generateSessionToken(), 3600, "", "", false, true)
+		sessionID := string(rand.Int31())
+		jsonUser, err := json.Marshal(*user)
+		if err != nil {
+		}
+		storeSessionID(sessionID, string(jsonUser), 86400)
+		c.SetCookie("session_id", string(sessionID), 3600*24, "", "", false, true)
 		c.HTML(http.StatusOK, "login-successful.html", gin.H{
 			"title": "loginSuccess",
 		})
@@ -70,4 +79,25 @@ func Regist(c *gin.Context) {
 		})
 	}
 
+}
+
+//Logout clear redis info and cookie
+func Logout(c *gin.Context) {
+	sessionID, _ := c.Cookie("session_id")
+	db.RedisConn.Do("DEL", sessionID)
+	c.SetCookie("session_id", "", -1, "", "", false, true)
+	c.HTML(http.StatusOK, "logout.html", gin.H{
+		"jump": "/",
+	})
+}
+
+//storeSessionID store sessionid into redis and set expire
+func storeSessionID(sessionID, userInfo string, timeout int32) {
+	_, err := db.RedisConn.Do("HMSET", sessionID, "info", userInfo)
+	if err != nil {
+	}
+	//set session ttl
+	_, err = db.RedisConn.Do("EXPIRE", sessionID, timeout)
+	if err != nil {
+	}
 }

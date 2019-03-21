@@ -3,12 +3,20 @@ package db
 import (
 	"log"
 
+	"github.com/thhy/ginblog/conf"
+
+	"github.com/garyburd/redigo/redis"
+
 	"github.com/go-xorm/xorm"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//DB operator database
-var DB *xorm.Engine
+var (
+	//DB database op
+	DB *xorm.Engine
+	//RedisConn redis connection
+	RedisConn redis.Conn
+)
 
 func init() {
 	var err error
@@ -17,6 +25,10 @@ func init() {
 		log.Panic(err)
 	}
 
+	RedisConn, err = redis.Dial("tcp", conf.REDISNETWORK)
+	if err != nil {
+		log.Panic(err)
+	}
 	// f, err := os.Create("test.log")
 	// if err != nil {
 	// 	log.Panic(err)

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -19,7 +18,6 @@ func GetAllArticles() []model.Article {
 	article := &model.Article{}
 
 	articles := article.GetAllArticles(0, 30)
-	log.Printf("%+v", articles)
 	return articles
 }
 
@@ -40,7 +38,6 @@ func GetArticleByID(c *gin.Context) {
 		})
 		return
 	}
-	log.Println("article.ID:? requesID:?", res.ID, id)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "article.html", gin.H{
 			"title": "invaild request id",
@@ -75,4 +72,9 @@ func NewArticle(c *gin.Context) {
 			"title": "submit success",
 		})
 	}
+}
+
+//
+func DeleteArticle(c *gin.Context) {
+
 }
