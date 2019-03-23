@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/garyburd/redigo/redis"
+
 	"github.com/thhy/ginblog/db"
 
 	"github.com/gin-gonic/gin"
@@ -19,16 +21,19 @@ func AuthMiddleWare() gin.HandlerFunc {
 				"message": "please login",
 			})
 			c.Abort()
+			c.Set("is_logged_in", false)
 		} else {
-			res, err := db.RedisConn.Do("KEYS", sessionID)
-			log.Printf("%+v\n", res)
-			if err != nil {
+			isExist, err := redis.Bool(db.RedisConn.Do("EXISTS", sessionID))
+			log.Printf("%+v\n", isExist)
+			if err != nil && !isExist {
 				log.Panicln(err)
 				c.JSON(http.StatusForbidden, gin.H{
 					"message": "please login",
 				})
+				c.Set("is_logged_in", false)
 				c.Abort()
 			} else {
+				c.Set("is_logged_in", true)
 				c.Next()
 			}
 		}
@@ -42,13 +47,35 @@ func UnAuthMiddleWare() gin.HandlerFunc {
 		sessionID, err := c.Cookie("session_id")
 		log.Printf("sessionID:%s\n", sessionID)
 		if err == nil {
-			_, err := db.RedisConn.Do("KEYS", sessionID)
-			if err == nil {
+			isExist, err := redis.Bool(db.RedisConn.Do("EXISTS", sessionID))
+			if err == nil && isExist {
+				c.Set("is_logged_in", true)
 				c.Redirect(http.StatusFound, "http://localhost:8081")
 				c.Abort()
+				return
 			}
 		}
-		// c.Next()
+		c.Set("is_logged_in", false)
+		c.Next()
+
+	}
+}
+
+//CheckLoginMiddleWare check user login
+func CheckLoginMiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sessionID, err := c.Cookie("session_id")
+		log.Printf("sessionID:%s\n", sessionID)
+		if err == nil {
+			isExist, err := redis.Bool(db.RedisConn.Do("EXISTS", sessionID))
+			if err == nil && isExist {
+				c.Set("is_logged_in", true)
+				c.Next()
+				return
+			}
+		}
+		c.Set("is_logged_in", false)
+		c.Next()
 
 	}
 }

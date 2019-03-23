@@ -26,32 +26,31 @@ func GetArticleByID(c *gin.Context) {
 	article := &model.Article{}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.HTML(http.StatusNotFound, "article.html", gin.H{
+		render(c, http.StatusNotFound, "article.html", gin.H{
 			"errorMessage": "not found page",
 		})
 		return
 	}
 	res, err := article.Get(uint(id))
 	if err != nil {
-		c.HTML(http.StatusNotFound, "article.html", gin.H{
+		render(c, http.StatusNotFound, "article.html", gin.H{
 			"errorMessage": "not found page",
 		})
 		return
 	}
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "article.html", gin.H{
+		render(c, http.StatusBadRequest, "article.html", gin.H{
 			"title": "invaild request id",
 		})
 		return
 	}
 	if res.ID == uint(id) {
-		c.HTML(http.StatusOK, "article.html", gin.H{
+		render(c, http.StatusOK, "article.html", gin.H{
 			"payload": res,
 			"title":   res.Title,
 		})
-
 	} else {
-		c.HTML(http.StatusUnauthorized, "index.html", gin.H{
+		render(c, http.StatusUnauthorized, "index.html", gin.H{
 			"title": "index",
 		})
 	}
@@ -60,7 +59,7 @@ func GetArticleByID(c *gin.Context) {
 //NewArticle get post article page
 func NewArticle(c *gin.Context) {
 	if c.Request.Method == "GET" {
-		c.HTML(http.StatusOK, "create_article.html", gin.H{
+		render(c, http.StatusOK, "create_article.html", gin.H{
 			"title": "create article",
 		})
 	} else if c.Request.Method == "POST" {
@@ -68,7 +67,7 @@ func NewArticle(c *gin.Context) {
 		content := c.PostForm("content")
 		article := &model.Article{Title: title, Content: content}
 		article.Create()
-		c.HTML(http.StatusOK, "submission-successful.html", gin.H{
+		render(c, http.StatusOK, "submission-successful.html", gin.H{
 			"title": "submit success",
 		})
 	}
