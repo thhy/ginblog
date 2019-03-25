@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"crypto/md5"
 	"encoding/json"
+	"fmt"
+	"io"
 	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/thhy/ginblog/db"
@@ -19,7 +23,7 @@ func Login(c *gin.Context) {
 		user := &model.User{Name: username, Password: password}
 		success := user.Auth()
 		if !success {
-			c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			render(c, http.StatusUnauthorized, "login.html", gin.H{
 				"ErrorTitle":   "Login Failed",
 				"ErrorMessage": "Invalid credentials provided"})
 		} else {
@@ -30,12 +34,13 @@ func Login(c *gin.Context) {
 			storeSessionID(sessionID, string(jsonUser), 86400)
 			//set cookie ttl
 			c.SetCookie("session_id", sessionID, 3600*24, "", "", false, true)
-			c.HTML(http.StatusOK, "login-successful.html", gin.H{
+			c.Set("is_logged_in", true)
+			render(c, http.StatusOK, "login-successful.html", gin.H{
 				"title": "loginSuccess",
 			})
 		}
 	} else if c.Request.Method == "GET" {
-		c.HTML(http.StatusOK, "login.html", gin.H{
+		render(c, http.StatusOK, "login.html", gin.H{
 			"title": "Login",
 		})
 	}
@@ -45,7 +50,16 @@ func generateSessionToken() string {
 	// We're using a random 16 character string as the session token
 	// This is NOT a secure way of generating session tokens
 	// DO NOT USE THIS IN PRODUCTION
-	return strconv.FormatInt(rand.Int63(), 16)
+	nano := time.Now().UnixNano()
+	rand.Seed(nano)
+	rndNum := rand.Int63()
+	return Md5(Md5(strconv.FormatInt(nano, 10)) + Md5(strconv.FormatInt(rndNum, 10)))
+}
+
+func Md5(text string) string {
+	hashMd5 := md5.New()
+	io.WriteString(hashMd5, text)
+	return fmt.Sprintf("%x", hashMd5.Sum(nil))
 }
 
 //Regist regist user
@@ -58,7 +72,7 @@ func Regist(c *gin.Context) {
 		err := user.Regist()
 
 		if err != nil {
-			c.HTML(http.StatusOK, "register.html", gin.H{
+			render(c, http.StatusOK, "register.html", gin.H{
 				"title":      "注册",
 				"ErrorTitle": err,
 			})
@@ -69,12 +83,13 @@ func Regist(c *gin.Context) {
 		if err != nil {
 		}
 		storeSessionID(sessionID, string(jsonUser), 86400)
+		c.Set("is_logged_in", true)
 		c.SetCookie("session_id", string(sessionID), 3600*24, "", "", false, true)
-		c.HTML(http.StatusOK, "login-successful.html", gin.H{
+		render(c, http.StatusOK, "login-successful.html", gin.H{
 			"title": "loginSuccess",
 		})
 	} else if c.Request.Method == "GET" {
-		c.HTML(http.StatusOK, "register.html", gin.H{
+		render(c, http.StatusOK, "register.html", gin.H{
 			"title": "注册",
 		})
 	}
@@ -86,7 +101,8 @@ func Logout(c *gin.Context) {
 	sessionID, _ := c.Cookie("session_id")
 	db.RedisConn.Do("DEL", sessionID)
 	c.SetCookie("session_id", "", -1, "", "", false, true)
-	c.HTML(http.StatusOK, "logout.html", gin.H{
+	c.Set("is_logged_in", false)
+	render(c, http.StatusOK, "logout.html", gin.H{
 		"jump": "/",
 	})
 }

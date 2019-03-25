@@ -15,7 +15,7 @@ func InitializeRoutes(router *gin.Engine) {
 
 	fmt.Println(os.Getwd())
 	router.LoadHTMLGlob("templates/*")
-	router.GET("/", handler.Index)
+	router.GET("/", middleware.CheckLoginMiddleWare(), handler.Index)
 	router.GET("/logout", middleware.AuthMiddleWare(), handler.Logout)
 
 	u := router.Group("/u", middleware.UnAuthMiddleWare())
