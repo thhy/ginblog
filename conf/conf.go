@@ -2,7 +2,7 @@ package conf
 
 var (
 	//SRCPATH resources path
-	SRCPATH = "D:/study/go/ginblog/static"
+	SRCPATH = "./static"
 	//BINDADDRESS bind address
 	BINDADDRESS = ":8081"
 	//SECRETKEY jwt key

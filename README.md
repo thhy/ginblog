@@ -1,4 +1,4 @@
-# GinBLog
+# GinBlog
 
 this is blog using [gin](https://github.com/gin-gonic/gin)  and [xorm](https://github.com/go-xorm/xorm)
 
@@ -12,3 +12,7 @@ this is blog using [gin](https://github.com/gin-gonic/gin)  and [xorm](https://g
 
 1. regist
 2. modify password
+
+## TODO
+  - [x] comment
+  - [x] delete ariticle

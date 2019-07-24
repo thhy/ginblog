@@ -11,13 +11,13 @@ import (
 
 //User auth user
 type User struct {
-	ID         uint   `xorm:"not null pk 'id' autoincr"`
-	Name       string `xorm:"varchar(256) not null"`
-	Password   string `xorm:"varchar(256) not null"`
-	Level      uint   `xorm:"default(0)"`
-	CreateTime uint   `xorm:"created"`
-	UpdateTime uint   `xorm:"updated"`
-	DeleteTime uint   `xorm:"deleted"`
+	ID         uint   `xorm:"not null pk 'id' autoincr" json:"id"`
+	Name       string `xorm:"varchar(256) not null" json:"name"`
+	Password   string `xorm:"varchar(256) not null" json:"password"`
+	Level      uint   `xorm:"default(0)" json:"level"`
+	CreateTime uint   `xorm:"created" json:"createtime"`
+	UpdateTime uint   `xorm:"updated" json:"updatetime"`
+	DeleteTime uint   `xorm:"deleted" json:"deletetime"`
 }
 
 //connect sqlite and create user database
@@ -70,7 +70,7 @@ func (user *User) Regist() error {
 func (user *User) Auth() bool {
 	mdpassword := encodePassword(user.Password)
 	user.Password = mdpassword
-	has, err := db.DB.Exist(user)
+	has, err := db.DB.Get(user)
 	if err != nil {
 		log.Fatal("query user error", err)
 	}

@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"github.com/thhy/ginblog/logger"
 	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/garyburd/redigo/redis"
 
@@ -23,17 +25,33 @@ func AuthMiddleWare() gin.HandlerFunc {
 			c.Abort()
 			c.Set("is_logged_in", false)
 		} else {
-			isExist, err := redis.Bool(db.RedisConn.Do("EXISTS", sessionID))
-			log.Printf("%+v\n", isExist)
-			if err != nil && !isExist {
-				log.Panicln(err)
+			var userInfo string
+			var err error
+			if values, err := db.RedisConn.Do("HMGET", sessionID, "info"); err == nil {
+				arr, ok := values.([]interface{})
+				if ok {
+					userInfo = string(arr[0].([]byte))
+					logger.Log(logger.DEBUG, reflect.TypeOf(userInfo))
+					logger.Log(logger.DEBUG, userInfo)
+				}
+
+			} else {
+				logger.Log(logger.DEBUG, "err:")
+				logger.Log(logger.DEBUG, err)
+			}
+
+			if err != nil || userInfo == "" {
+				logger.Log(logger.DEBUG, err)
 				c.JSON(http.StatusForbidden, gin.H{
 					"message": "please login",
 				})
 				c.Set("is_logged_in", false)
 				c.Abort()
 			} else {
+				logger.Log(logger.DEBUG, "pass auth")
 				c.Set("is_logged_in", true)
+				c.Set("userInfo", userInfo)
+				logger.Log(logger.DEBUG, c.MustGet("userInfo"))
 				c.Next()
 			}
 		}

@@ -16,6 +16,7 @@ type Article struct {
 	CreateTime uint   `xorm:"created"`
 	UpdateTime uint   `xorm:"updated"`
 	DeleteTime uint   `xorm:"deleted"`
+	AutherID   uint   `xorm:"autherId"`
 }
 
 func init() {
@@ -58,6 +59,19 @@ func (article *Article) Get(id uint) (*Article, error) {
 		return nil, errors.New("not found page")
 	}
 	return &articles[0], err
+}
+
+//Delete artcile according articleId
+func (article *Article) Delete() error {
+	var art Article
+	affect, err := db.DB.Where("id = ?", article.ID).And("autherID = ?", article.AutherID).Delete(&art)
+	if err != nil {
+		return err
+	}
+	if affect == 0 {
+		return errors.New("this artcile is not exist")
+	}
+	return nil
 }
 
 //Modify article

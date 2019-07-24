@@ -31,5 +31,6 @@ func InitializeRoutes(router *gin.Engine) {
 		a.GET("view/:id", handler.GetArticleByID)
 		a.GET("create", handler.NewArticle)
 		a.POST("create", handler.NewArticle)
+		a.GET("delete/:id", handler.DeleteArticle)
 	}
 }
