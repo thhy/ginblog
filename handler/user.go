@@ -109,6 +109,27 @@ func Logout(c *gin.Context) {
 	})
 }
 
+//
+func ModifyPassword(c *gin.Context) {
+	oldPassword := c.PostForm("password")
+	newPassword := c.PostForm("newpassword")
+	user, err := getCurUser(c)
+	if err != nil {
+
+	}
+	newUser := &model.User{ID:user.ID, Password:oldPassword}
+	err = newUser.Modify(newPassword)
+	if err != nil {
+
+	}
+	sessionID, _ := c.Cookie("session_id")
+	jsonUser, _ := json.Marshal(user)
+	//设置redis过期时间
+	storeSessionID(sessionID, string(jsonUser), 86400)
+	//重新设置cookie失效时间
+	c.SetCookie("session_id", sessionID, 3600*24, "", "", false, true)
+}
+
 //storeSessionID store sessionid into redis and set expire
 func storeSessionID(sessionID, userInfo string, timeout int32) {
 	_, err := db.RedisConn.Do("HMSET", sessionID, "info", userInfo)

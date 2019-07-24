@@ -78,6 +78,20 @@ func (user *User) Auth() bool {
 	return has
 }
 
+func (user *User) Modify(newPassword string) error {
+	//使用旧密码验证
+	if !user.Auth() {
+		return errors.New("auth failed")
+	}
+
+	if user.Password != "" {
+		user.Password = encodePassword(newPassword)
+	}
+	//对密码进行更新
+	db.DB.Where("id = ?", user.ID).Update("password = ?", user.Password)
+	return nil
+}
+
 //encodePassword md5 password
 func encodePassword(password string) string {
 	salt := "kaikaikai"

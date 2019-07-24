@@ -69,8 +69,8 @@ func NewArticle(c *gin.Context) {
 	} else if c.Request.Method == "POST" {
 		title := c.PostForm("title")
 		content := c.PostForm("content")
-		autherId, _ := getCurSessionId(c)
-		article := &model.Article{Title: title, Content: content, AutherID: autherId}
+		user, _ := getCurUser(c)
+		article := &model.Article{Title: title, Content: content, AutherID: user.ID}
 		article.Create()
 		render(c, http.StatusOK, "submission-successful.html", gin.H{
 			"title": "submit success",
@@ -117,13 +117,13 @@ func DeleteArticle(c *gin.Context) {
 	}
 }
 
-func getCurSessionId(c *gin.Context) (uint, error) {
+func getCurUser(c *gin.Context) (*model.User, error) {
 	userInfo := c.MustGet("userInfo").(string)
 	var user model.User
 
 	err := json.Unmarshal([]byte(userInfo), &user)
 	if err != nil {
-		return 0, errors.New("get user id failed")
+		return nil, errors.New("get user id failed")
 	}
-	return user.ID, nil
+	return &user, nil
 }
