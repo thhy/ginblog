@@ -23,7 +23,7 @@ func Login(c *gin.Context) {
 		password := c.PostForm("password")
 		user := &model.User{Name: username, Password: password}
 		success := user.Auth()
-		log.Print("%+v\n", user)
+		log.Print("user:%+v\n", *user)
 		if !success {
 			render(c, http.StatusUnauthorized, "login.html", gin.H{
 				"ErrorTitle":   "Login Failed",

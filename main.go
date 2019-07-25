@@ -22,6 +22,5 @@ func main() {
 	}()
 	os.Chdir(conf.SRCPATH)
 	router.InitializeRoutes(server)
-
 	server.Run(conf.BINDADDRESS)
 }

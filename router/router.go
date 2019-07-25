@@ -33,4 +33,9 @@ func InitializeRoutes(router *gin.Engine) {
 		a.POST("create", handler.NewArticle)
 		a.GET("delete/:id", handler.DeleteArticle)
 	}
+	router.Static("/css", "./css")
+	router.Static("/js", "./js")
+	router.Static("/html", "./html")
+	router.Static("/img", "./img")
+
 }

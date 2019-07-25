@@ -3,31 +3,38 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-<h1>Login</h1>
 
+  <div >
 
-<div class="panel panel-default col-sm-6">
-  <div class="panel-body">
-    <!--If there's an error, display the error-->
-    {{ if .ErrorTitle}}
-    <p class="bg-danger">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </p>
-    {{end}}
     <!--Create a form that POSTs to the `/u/login` route-->
-    <form class="form" action="/u/login" method="POST">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" class="form-control" id="username" name="username" placeholder="Username">
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-      </div>
-      <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+      <div class="container">
+        <div class="card card-container">
+          <!-- <img class="profile-img-card" src="//lh3.googleusercontent.com/-6V8xOA6M7BA/AAAAAAAAAAI/AAAAAAAAAAA/rzlHcD0KYwo/photo.jpg?sz=120" alt="" /> -->
+          <img id="profile-img" class="profile-img-card" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+          <p id="profile-name" class="profile-name-card"></p>
+          <form class="form-signin" action="/u/login" method="POST">
+            <span id="reauth-email" class="reauth-email"></span>
+            <input type="email" id="username" class="form-control" placeholder="Email address" required autofocus>
+            <input type="password" id="password" class="form-control" placeholder="Password" required>
+            <div id="remember" class="checkbox">
+              <label>
+                <input type="checkbox" value="remember-me"> Remember me
+              </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Sign in</button>
+          </form><!-- /form -->
+          {{ if .ErrorTitle}}
+            <p class="bg-danger">
+              {{.ErrorTitle}}: {{.ErrorMessage}}
+            </p>
+          {{end}}
+          <!--If there's an error, display the error-->
+          <a href="#" class="forgot-password">
+            Forgot the password?
+          </a>
+        </div><!-- /card-container -->
+      </div><!-- /container -->
   </div>
-</div>  
 
 
 <!--Embed the footer.html template at this location-->
