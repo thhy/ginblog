@@ -1,13 +1,13 @@
 <!--menu.html-->
 
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default modal-content">
   <div class="container">
     <div class="navbar-header">
       <a class="navbar-brand" href="/">
         Home
       </a>
     </div>
-    <ul class="nav navbar-nav">
+    <ul class="nav navbar-nav menu">
       {{ if .is_logged_in }}
         <!--Display this link only when the user is logged in-->
         <li><a href="/article/create">Create Article</a></li>

@@ -13,14 +13,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/thhy/ginblog/db"
+	"github.com/thhy/ginblog/logger"
 	"github.com/thhy/ginblog/model"
 )
 
 //Login 用户登录
 func Login(c *gin.Context) {
 	if c.Request.Method == "POST" {
-		username := c.PostForm("username")
+		username := c.PostForm("email")
 		password := c.PostForm("password")
+		if username == "" || password == "" {
+			render(c, http.StatusUnauthorized, "login.html", gin.H{
+				"ErrorTitle":   "Login Failed",
+				"ErrorMessage": "Invalid credentials provided"})
+			return
+		}
+		logger.Log(logger.DEBUG, c.Request.Body)
 		user := &model.User{Name: username, Password: password}
 		success := user.Auth()
 		log.Print("user:%+v\n", *user)
@@ -67,8 +75,14 @@ func Md5(text string) string {
 //Regist regist user
 func Regist(c *gin.Context) {
 	if c.Request.Method == "POST" {
-		username := c.PostForm("username")
+		username := c.PostForm("email")
 		password := c.PostForm("password")
+		if username == "" || password == "" {
+			render(c, http.StatusUnauthorized, "login.html", gin.H{
+				"ErrorTitle":   "Login Failed",
+				"ErrorMessage": "Invalid credentials provided"})
+			return
+		}
 
 		user := &model.User{Name: username, Password: password}
 		err := user.Regist()
@@ -117,7 +131,7 @@ func ModifyPassword(c *gin.Context) {
 	if err != nil {
 
 	}
-	newUser := &model.User{ID:user.ID, Password:oldPassword}
+	newUser := &model.User{ID: user.ID, Password: oldPassword}
 	err = newUser.Modify(newPassword)
 	if err != nil {
 

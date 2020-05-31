@@ -3,8 +3,10 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
+<div class="container">
 <!--Loop over the `payload` variable, which is the list of articles-->
 {{range .payload }}
+<div class="article well">
     <!--Create the link for the article based on its ID-->
     <a href="/article/view/{{.ID}}">
         <!--Display the title of the article -->
@@ -12,7 +14,8 @@
     </a>
     <!--Display the content of the article-->
     <p>{{.Content}}</p>
+</div>
 {{end}}
-
+</div>
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

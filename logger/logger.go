@@ -12,7 +12,7 @@ const (
 	FATAL
 )
 
-var LOGGERLEVEL = INFO
+var LOGGERLEVEL = DEBUG
 
 var LEVELINFO = []string{
 	"DEBUG",
@@ -22,8 +22,8 @@ var LEVELINFO = []string{
 }
 
 func Log(level int, str ...interface{}) {
-	funcName,file,line,ok := runtime.Caller(1)
-	if(ok){
+	funcName, file, line, ok := runtime.Caller(1)
+	if ok {
 		if level >= LOGGERLEVEL {
 			fmt.Printf("[%s: %d][func:%s][%s]%+v \n", file, line, runtime.FuncForPC(funcName).Name(), LEVELINFO[level], str)
 		}

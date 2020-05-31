@@ -66,7 +66,11 @@ func UnAuthMiddleWare() gin.HandlerFunc {
 		log.Printf("sessionID:%s\n", sessionID)
 		if err == nil {
 			isExist, err := redis.Bool(db.RedisConn.Do("EXISTS", sessionID))
-			if err == nil && isExist {
+			if err != nil {
+				c.Redirect(http.StatusFound, "http://localhost:8081")
+				return
+			}
+			if isExist {
 				c.Set("is_logged_in", true)
 				c.Redirect(http.StatusFound, "http://localhost:8081")
 				c.Abort()

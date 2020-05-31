@@ -37,5 +37,6 @@ func InitializeRoutes(router *gin.Engine) {
 	router.Static("/js", "./js")
 	router.Static("/html", "./html")
 	router.Static("/img", "./img")
-
+	router.Static("/fonts", "./fonts")
+	router.POST("/upload", handler.Upload)
 }

@@ -9,4 +9,6 @@ var (
 	SECRETKEY = "secret"
 	//REDISNETWORK redis ip and port
 	REDISNETWORK = "127.0.0.1:6379"
+	//FILEPATH UPLOAD FILE PATH
+	FILEPATH = "upload/"
 )
